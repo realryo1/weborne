@@ -8,6 +8,7 @@
 ## 使い方
 
 1. **Chrome**で[https://realryo1.github.io/weborne/](https://realryo1.github.io/weborne/)を開きます（初回だけ自動で1回再読み込みされます）。
+   - 「アプリとしてインストール」（またはChromeのメニューの「アプリをインストール」）でホーム画面に追加できます。一度開いたあとはオフラインでも起動できます（受信にインターネットは使いません）。
 2. Windowsの場合は、最初の1回だけドライバの割り当てが必要です（下の「注意」を参照）。
 3. CECH-ZD1JをUSBでつなぎ、「接続」を押してCECH-ZD1Jを選びます。(AndroidはCECH-ZD1Jを押さないと接続ボタンが押せない)
 4. 勝手にチャンネルスキャンが始まります（UHF 13〜62ch、約2分）。見つかった局から順にボタンになります。途中で中断しても再開可能です。
@@ -60,7 +61,7 @@ player.js ──(SharedArrayBufferのリング)──▶ decoder-worker.js（ffm
 
 公開中のサイトをそのまま使えば、配信の準備はいりません。自分で配信する場合は、ビルド（下記）したあとの`web/`を静的サイトとして置くだけです（サーバー側の処理はありません）。WebUSBはHTTPS（またはlocalhost）でしか動きません。
 
-- **GitHub Pages**：`main`にpushすると[.github/workflows/deploy.yml](.github/workflows/deploy.yml)がビルドして配信します。forkして使う場合は、最初に一度だけリポジトリのSettings → Pages → Sourceを「GitHub Actions」にしてください。ヘッダー（COOP/COEP）は`web/coi-sw.js`（Service Worker）が付けます。
+- **GitHub Pages**：`main`にpushすると[.github/workflows/deploy.yml](.github/workflows/deploy.yml)がビルドして配信します。forkして使う場合は、最初に一度だけリポジトリのSettings → Pages → Sourceを「GitHub Actions」にしてください。ヘッダー（COOP/COEP）は`web/sw.js`（Service Worker）が付けます。
 - **ローカル**：`node serve.js`で`http://localhost:8080/`に立ちます（必要なヘッダー付き）。PCのChromeならそのまま使えます。
 - **Tailscale**：`node serve.js`を起動したまま`tailscale serve --bg 8080`を実行すると、tailnet内の端末だけに`https://<PC名>.<tailnet>.ts.net/`で公開されます。外出先のスマホからも使えます。止めるときは`tailscale serve --https=443 off`。
 - **adb経由**：`start.bat`がサーバーを起動し、`adb reverse tcp:8080 tcp:8080`でスマホの`localhost:8080`をPCに転送します。スマホのUSB端子はチューナーに使うので、adbは**ワイヤレス デバッグ**でつなぎます（Android 11以降）。

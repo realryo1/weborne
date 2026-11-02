@@ -3,8 +3,8 @@
 # One-time setup: Settings → Pages → Build and deployment → Source: "GitHub Actions".
 #
 # GitHub Pages cannot send the COOP/COEP headers SharedArrayBuffer needs;
-# web/coi-sw.js adds them from a service worker (the page reloads itself once
-# on the first visit).
+# web/sw.js adds them from a service worker (the page reloads itself once
+# on the first visit). It also caches the app so it opens offline.
 
 name: Deploy to GitHub Pages
 
@@ -57,6 +57,10 @@ jobs:
           npm ci --ignore-scripts --no-audit --no-fund
           mkdir -p web/ffmpeg
           cp node_modules/@ffmpeg/core/dist/esm/ffmpeg-core.js node_modules/@ffmpeg/core/dist/esm/ffmpeg-core.wasm web/ffmpeg/
+
+      # A new version makes the service worker cache the app afresh.
+      - name: Stamp the service worker
+        run: sed -i "s/^const VERSION = 'dev';/const VERSION = '${GITHUB_SHA::12}';/" web/sw.js
 
       - uses: actions/configure-pages@v5
 

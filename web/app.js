@@ -11,11 +11,18 @@ const $ = (id) => document.getElementById(id);
 
 // ---- cross-origin isolation (SharedArrayBuffer for the decoder) -----------
 
+// sw.js caches the app for offline use and, on static hosts that cannot send
+// COOP/COEP, adds them; the page is isolated from the next load on.
 async function ensureIsolated() {
+  if ('serviceWorker' in navigator) {
+    try {
+      await navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' });
+    } catch (error) {
+      console.warn('service worker:', error);
+    }
+  }
   if (window.crossOriginIsolated) return true;
   if (!('serviceWorker' in navigator)) return false;
-  // Static hosts cannot send COOP/COEP; coi-sw.js adds them, after one reload.
-  await navigator.serviceWorker.register('coi-sw.js');
   await navigator.serviceWorker.ready;
   if (!sessionStorage.getItem('weborne.coi-reloaded')) {
     sessionStorage.setItem('weborne.coi-reloaded', '1');
@@ -585,6 +592,21 @@ async function main() {
   $('scan-cancel').addEventListener('click', () => { scanPause = true; });
   renderScanButton();
   $('fullscreen').addEventListener('click', toggleFullscreen);
+  // Offered by the browser once the page qualifies as an installable app.
+  let installPrompt = null;
+  window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault();
+    installPrompt = event;
+    $('install').hidden = false;
+  });
+  window.addEventListener('appinstalled', () => { $('install').hidden = true; installPrompt = null; });
+  $('install').addEventListener('click', async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    await installPrompt.userChoice;
+    installPrompt = null;
+    $('install').hidden = true;
+  });
   $('stage').addEventListener('dblclick', toggleFullscreen);
   // The bar over the picture works as on YouTube: a tap shows it and the
   // next tap hides it, a mouse move shows it, and it hides by itself after a
