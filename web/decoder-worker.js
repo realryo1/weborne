@@ -119,8 +119,11 @@ function args(options) {
     '-analyzeduration', '1500000',
   ];
   if (options.lowres) input.push('-lowres', '1');
+  // Bilingual programmes carry both languages in one AAC stream (dual mono);
+  // left alone the decoder plays the main language left and the second right.
+  input.push('-dual_mono_mode', options.dualMono || 'main');
   input.push('-f', 'mpegts', '-i', '/dev/tsin');
-  const out = ['-map', '0:v:0', '-map', '0:a:0?'];
+  const out = ['-map', '0:v:0', '-map', `0:a:${options.audio || 0}?`];
   const filters = [];
   if (options.width && options.height) filters.push(`scale=${options.width}:${options.height}:flags=fast_bilinear`);
   if (filters.length) out.push('-vf', filters.join(','));

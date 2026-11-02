@@ -112,12 +112,29 @@ function setChip(id, text, state) {
 function quality() { return $('quality').value; }
 
 function decoderOptions() {
+  let options;
   switch (quality()) {
-    case 'full': return { width: 1440, height: 1080 };
-    case 'one': return { width: 320, height: 180, small: true };
-    default: return { lowres: 1, width: 720, height: 540 };
+    case 'full': options = { width: 1440, height: 1080 }; break;
+    case 'one': options = { width: 320, height: 180, small: true }; break;
+    default: options = { lowres: 1, width: 720, height: 540 };
   }
+  return { ...options, ...audioChoice() };
 }
+
+// 主音声／副音声. A second language comes either inside the one audio stream
+// (dual mono, picked by the decoder) or as a second audio stream.
+function audioMode() { return $('audio-mode').value; }
+
+function audioChoice() {
+  const mode = audioMode();
+  const service = services.find((s) => s.id === activeService)
+    || services.find((s) => s.codec === 'mpeg2' && s.audio && s.audio.length);
+  const streams = service && service.audio ? service.audio.length : 1;
+  if (mode === 'sub' && streams > 1) return { audio: 1, dualMono: 'main' };
+  return { audio: 0, dualMono: mode };
+}
+
+let playingAudio = null;
 
 // Which service to pass on: what the user picked, else for one-seg the
 // H.264 service, else automatic (the first MPEG-2 TV service).
@@ -229,6 +246,12 @@ function onServices(json) {
     $('overlay-title').textContent = channelLabel(current);
   }
   renderServices();
+  // A second audio stream is known only now.
+  const audio = JSON.stringify(audioChoice());
+  if (playingAudio !== null && audio !== playingAudio && player.running) {
+    playingAudio = audio;
+    restartPlayer();
+  }
   // One-seg needs its own service, known only now.
   const wanted = wantedService();
   if (wanted && wanted !== activeService) {
@@ -260,7 +283,9 @@ function renderServices() {
 
 async function restartPlayer() {
   await player.stop();
-  await player.start(decoderOptions());
+  const options = decoderOptions();
+  playingAudio = JSON.stringify({ audio: options.audio, dualMono: options.dualMono });
+  await player.start(options);
 }
 
 async function play(entry) {
@@ -291,7 +316,9 @@ async function play(entry) {
     services = [];
     wt.select(activeService);
     usb.flushStream();
-    await player.start(decoderOptions());
+    const options = decoderOptions();
+    playingAudio = JSON.stringify({ audio: options.audio, dualMono: options.dualMono });
+    await player.start(options);
     await wt.start(onData, onServices);
     setMessage('');
     restarts = 0;
@@ -593,6 +620,14 @@ async function main() {
     wt.select(activeService);
     restartPlayer();
   });
+  $('audio-mode').addEventListener('change', () => {
+    try { localStorage.setItem('weborne.audio', audioMode()); } catch { /* ignore */ }
+    if (current && !busy) restartPlayer();
+  });
+  try {
+    const savedAudio = localStorage.getItem('weborne.audio');
+    if (savedAudio) $('audio-mode').value = savedAudio;
+  } catch { /* ignore */ }
   $('service').addEventListener('change', (e) => {
     chosenService = Number(e.target.value);
     if (!current) return;
