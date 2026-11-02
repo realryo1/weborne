@@ -26,6 +26,9 @@ const FILES = [
   'ffmpeg/ffmpeg-core.wasm',
   'manifest.webmanifest',
   'icon.svg',
+  'icon-192.png',
+  'icon-512.png',
+  'icon-maskable-512.png',
   'driver/weborne-winusb.bat',
 ];
 
@@ -66,8 +69,11 @@ async function fromCache(request) {
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
+  // The manifest is what the browser identifies the installed app by, so it
+  // always comes from the network when there is one.
+  const fresh = VERSION === 'dev' || new URL(request.url).pathname.endsWith('.webmanifest');
   event.respondWith((async () => {
-    if (VERSION !== 'dev') {
+    if (!fresh) {
       const cached = await fromCache(request);
       if (cached) return isolate(cached);
     }
