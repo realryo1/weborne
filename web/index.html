@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0d12">
+  <title>weborne</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="bar">
+    <h1>weborne</h1>
+    <div class="chips">
+      <span id="chip-usb" class="chip">USB 未接続</span>
+      <span id="chip-card" class="chip">カード —</span>
+      <span id="chip-signal" class="chip">信号 —</span>
+    </div>
+  </header>
+
+  <main>
+    <section id="stage" class="stage">
+      <canvas id="screen"></canvas>
+      <div id="overlay" class="overlay">
+        <div id="overlay-title" class="overlay-title"></div>
+        <div id="overlay-message" class="overlay-message">torne を USB で接続して「接続」を押してください</div>
+      </div>
+      <div class="stage-controls">
+        <button id="mute" class="icon" title="ミュート" aria-label="ミュート">🔊</button>
+        <input id="volume" type="range" min="0" max="1" step="0.05" value="1" aria-label="音量">
+        <span class="spacer"></span>
+        <span id="stats" class="stats"></span>
+        <button id="fullscreen" class="icon" title="全画面" aria-label="全画面">⛶</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="row">
+        <button id="connect" class="primary">接続</button>
+        <button id="scan">チャンネルスキャン</button>
+        <button id="scan-restart" hidden>最初から</button>
+        <select id="service" aria-label="サービス" disabled><option>サービス</option></select>
+      </div>
+      <div id="channels" class="channels"></div>
+      <div id="scan-progress" class="scan-progress" hidden>
+        <div class="scan-bar"><div id="scan-fill"></div></div>
+        <span id="scan-text"></span>
+        <button id="scan-cancel">中断</button>
+      </div>
+    </section>
+
+    <section id="driver-help" class="panel driver-help" hidden>
+      <h2>Windows ではドライバが必要です（最初の 1 回だけ）</h2>
+      <p>Windows は torne に自動でドライバを割り当てないため、ブラウザから使えません。下のファイルで Windows 標準の WinUSB ドライバを割り当ててください。</p>
+      <ol>
+        <li><a id="driver-download" class="button primary" href="driver/weborne-winusb.bat" download>ドライバをインストール（.bat）</a> をダウンロードして実行します。警告が出たら「詳細情報」→「実行」を選びます。</li>
+        <li>管理者の確認で「はい」を押し、「完了しました」と出るまで待ちます。</li>
+        <li>torne を一度抜いて挿し直し、「接続」を押します。</li>
+      </ol>
+      <p class="hint">すでにドライバが入っている場合は、TVTest や coaxd.exe が torne を使っていないか確認してください（同時には使えません）。インストール時に、ドライバの署名用の証明書がこの PC に追加されます。</p>
+    </section>
+
+    <section class="panel">
+      <div class="row settings">
+        <label>画質
+          <select id="quality">
+            <option value="light">標準（軽量・540p）</option>
+            <option value="full">高画質（1080）</option>
+            <option value="one">ワンセグ</option>
+          </select>
+        </label>
+        <label class="check"><input id="deinterlace" type="checkbox" checked> インターレース解除</label>
+      </div>
+    </section>
+
+    <details class="panel log">
+      <summary>ログ</summary>
+      <pre id="log"></pre>
+    </details>
+
+    <p class="note">
+      torne（CECH-ZD1 J）を USB で接続して使います。
+      再読み込みした後や他のソフトで使った後は、torne を一度抜き差ししてください。
+    </p>
+  </main>
+
+  <script src="wasm_exec.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+node_modules/
+.work/
+
+# Built by build.ps1
+web/weborne.wasm
+web/wasm_exec.js
+web/ffmpeg/

@@ -1,0 +1,12 @@
+{
+  "name": "weborne",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "node serve.js"
+  },
+  "devDependencies": {
+    "@ffmpeg/core": "0.12.10",
+    "usb": "^2.19.1"
+  }
+}
