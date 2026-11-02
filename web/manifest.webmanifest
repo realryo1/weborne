@@ -1,7 +1,7 @@
 {
   "name": "weborne",
   "short_name": "weborne",
-  "description": "torne (CECH-ZD1 J) をブラウザで視聴",
+  "description": "torne (CECH-ZD1 J)をブラウザで視聴",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0b0d12",

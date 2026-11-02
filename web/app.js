@@ -153,18 +153,18 @@ async function connect() {
   try {
     let device = await TorneUSB.known();
     if (!device) device = await TorneUSB.request();
-    setMessage('torne を初期化しています…');
+    setMessage('torneを初期化しています…');
     usb = new TorneUSB(device);
     await usb.open();
-    setChip('chip-usb', 'USB 接続中', 'busy');
+    setChip('chip-usb', 'USB接続中', 'busy');
     const result = await wt.attach(usb);
     attached = true;
     $('driver-help').hidden = true;
-    setChip('chip-usb', 'USB 接続', 'ok');
-    if (result.card) setChip('chip-card', 'カード OK', 'ok');
+    setChip('chip-usb', 'USB接続', 'ok');
+    if (result.card) setChip('chip-card', 'カードOK', 'ok');
     else setChip('chip-card', 'カードなし', 'bad');
     if (result.cardError) log(`カード: ${result.cardError}`);
-    else log(`カード ID ${result.cardId}`);
+    else log(`カードID ${result.cardId}`);
     $('connect').textContent = '接続済み';
     setMessage(channels.length ? 'チャンネルを選んでください' : '「チャンネルスキャン」で受信できるチャンネルを探してください');
     // A paused scan goes on by itself, unless something is being watched.
@@ -174,11 +174,11 @@ async function connect() {
     if (needsDriver(error)) {
       $('driver-help').hidden = false;
       $('driver-help').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setMessage('torne を開けませんでした。下の案内に従ってドライバを入れてください');
+      setMessage('torneを開けませんでした。下の案内に従ってドライバを入れてください');
     } else {
       setMessage(`接続に失敗しました: ${error.message || error}`);
     }
-    setChip('chip-usb', 'USB エラー', 'bad');
+    setChip('chip-usb', 'USBエラー', 'bad');
     if (usb) await usb.close();
     usb = null;
     $('connect').disabled = false;
@@ -204,12 +204,12 @@ function disconnected() {
   if (player) player.stop().then(() => player.clear());
   if (usb) usb.close();
   usb = null;
-  setChip('chip-usb', 'USB 未接続', '');
+  setChip('chip-usb', 'USB未接続', '');
   setChip('chip-card', 'カード —', '');
   setChip('chip-signal', '信号 —', '');
   $('connect').disabled = false;
   $('connect').textContent = '接続';
-  setMessage('torne が外されました。挿し直して「接続」を押してください');
+  setMessage('torneが外されました。挿し直して「接続」を押してください');
   releaseWakeLock();
   renderChannels();
 }
@@ -275,13 +275,13 @@ async function play(entry) {
     renderServices();
     renderChannels();
     $('overlay-title').textContent = channelLabel(entry);
-    setMessage(`${entry.ch}ch を選局中…`);
+    setMessage(`${entry.ch}chを選局中…`);
     await player.stop();
     await wt.stop();
     const status = await wt.tune(entry.freq);
     showSignal(status);
     if (!status.locked) {
-      setMessage(`${entry.ch}ch は受信できません（信号なし）`);
+      setMessage(`${entry.ch}chは受信できません（信号なし）`);
       return;
     }
     // Choose from what is remembered of this channel, so one-seg starts on
@@ -327,7 +327,7 @@ async function poll() {
         setChip('chip-card', 'カード エラー', 'bad');
         if (!$('overlay-message').textContent) setMessage(p.ecmError);
       } else if (p.haveKeys) {
-        setChip('chip-card', 'カード OK', 'ok');
+        setChip('chip-card', 'カードOK', 'ok');
       }
     }
     const info = player.info();
@@ -402,12 +402,12 @@ async function scan({ fromStart = false } = {}) {
   await wt.stop();
   current = null;
   renderChannels();
-  setMessage(`チャンネルスキャン中（${state.next}ch から）。局を押すと中断して再生します`);
+  setMessage(`チャンネルスキャン中（${state.next}chから）。局を押すと中断して再生します`);
   try {
     for (let ch = state.next; ch <= UHF_LAST && !scanPause; ch++) {
       const progress = (ch - UHF_FIRST) / (UHF_LAST - UHF_FIRST + 1);
       $('scan-fill').style.width = `${(progress * 100).toFixed(0)}%`;
-      $('scan-text').textContent = `${ch}ch を確認中… 見つかった数 ${channels.length}`;
+      $('scan-text').textContent = `${ch}chを確認中… 見つかった数${channels.length}`;
       let status = null;
       try {
         // An empty channel need not be waited on as long as one being watched.
@@ -451,9 +451,9 @@ async function scan({ fromStart = false } = {}) {
     renderScanButton();
     renderChannels();
     if (paused) {
-      setMessage(`スキャンを中断しました（${loadScan().next}ch から再開します）`);
+      setMessage(`スキャンを中断しました（${loadScan().next}chから再開します）`);
     } else {
-      setMessage(channels.length ? `${channels.length} 局見つかりました。チャンネルを選んでください` : 'チャンネルが見つかりませんでした。アンテナの接続を確認してください');
+      setMessage(channels.length ? `${channels.length}局見つかりました。チャンネルを選んでください` : 'チャンネルが見つかりませんでした。アンテナの接続を確認してください');
     }
     finish();
   }
@@ -507,17 +507,17 @@ async function main() {
   channels = loadChannels();
   renderChannels();
   if (!('usb' in navigator)) {
-    setMessage('このブラウザは WebUSB に対応していません。Android または PC の Chrome で開いてください');
+    setMessage('このブラウザはWebUSBに対応していません。AndroidまたはPCのChromeで開いてください');
     $('connect').disabled = true;
     return;
   }
   if (!window.isSecureContext) {
-    setMessage('HTTPS（または localhost）で開いてください。WebUSB は安全な接続でしか使えません');
+    setMessage('HTTPS（またはlocalhost）で開いてください。WebUSBは安全な接続でしか使えません');
     $('connect').disabled = true;
     return;
   }
   if (!(await ensureIsolated())) {
-    setMessage('このページを分離モードで開けませんでした（SharedArrayBuffer が使えません）。再読み込みしてください');
+    setMessage('このページを分離モードで開けませんでした（SharedArrayBufferが使えません）。再読み込みしてください');
     sessionStorage.removeItem('weborne.coi-reloaded');
     $('connect').disabled = true;
     return;
@@ -528,12 +528,12 @@ async function main() {
     onLog: log,
     onState: (state) => {
       if (state.tracks && state.tracks.video) {
-        log(`映像 ${state.tracks.video.width}x${state.tracks.video.height}${state.tracks.audio ? ' / 音声あり' : ''}`);
+        log(`映像${state.tracks.video.width}x${state.tracks.video.height}${state.tracks.audio ? ' / 音声あり' : ''}`);
       }
       if (state.ended !== undefined && !state.requested && current && !busy && !scanning && attached) {
         // ffmpeg gave up (a broken stream): start it again, but not forever.
         if (restarts++ < 5) {
-          log(`デコーダが終了しました (code ${state.ended})。再起動します`);
+          log(`デコーダが終了しました(code ${state.ended})。再起動します`);
           setTimeout(() => { if (current && !busy && !player.running) player.start(decoderOptions()); }, 500);
         }
       }
@@ -550,7 +550,7 @@ async function main() {
     return;
   }
   $('connect').disabled = false;
-  setMessage('torne を USB で接続して「接続」を押してください');
+  setMessage('torneをUSBで接続して「接続」を押してください');
 
   $('connect').addEventListener('click', connect);
   $('scan').addEventListener('click', () => scan());

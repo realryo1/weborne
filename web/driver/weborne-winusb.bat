@@ -14,7 +14,7 @@ $ErrorActionPreference = 'Stop'
 function Quote([string]$s) { "'" + ($s -replace "'", "''") + "'" }
 $self = $env:WEBORNE_SELF
 
-# ドライバの導入には管理者権限が要るので、UAC で自分自身を起動し直す。
+# ドライバの導入には管理者権限が要るので、UACで自分自身を起動し直す。
 $id = [Security.Principal.WindowsIdentity]::GetCurrent()
 $isAdmin = ([Security.Principal.WindowsPrincipal]$id).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
@@ -73,10 +73,10 @@ ManufacturerName = "Sony"
 DeviceName       = "Sony CECH-ZD1 J (WinUSB)"
 '@
 
-Write-Host 'torne (Sony CECH-ZD1 J) に WinUSB ドライバを割り当てます。' -ForegroundColor Cyan
+Write-Host 'torne (Sony CECH-ZD1 J)にWinUSBドライバを割り当てます。' -ForegroundColor Cyan
 
 # この実行のためだけの署名用証明書を作り、カタログに署名する。公開鍵は
-# Root と TrustedPublisher に入れ、秘密鍵は署名が終わったら消す。
+# RootとTrustedPublisherに入れ、秘密鍵は署名が終わったら消す。
 $cert = New-SelfSignedCertificate -Type CodeSigningCert -Subject 'CN=coax WinUSB signing' `
   -CertStoreLocation Cert:\LocalMachine\My -NotAfter (Get-Date).AddYears(2)
 $signer = "Cert:\LocalMachine\My\$($cert.Thumbprint)"
@@ -103,9 +103,9 @@ try {
   & pnputil.exe /add-driver $infPath /install
   switch ($LASTEXITCODE) {
     0 { Write-Host '完了しました。' -ForegroundColor Green }
-    259 { Write-Host 'ドライバを登録しました（torne はまだ挿さっていません）。挿せばそのまま使えます。' -ForegroundColor Green }
-    3010 { Write-Host '完了しました。Windows が再起動を求めています。' -ForegroundColor Yellow }
-    default { Write-Host "pnputil が失敗しました (コード $LASTEXITCODE)。" -ForegroundColor Red; $failed = $true }
+    259 { Write-Host 'ドライバを登録しました（torneはまだ挿さっていません）。挿せばそのまま使えます。' -ForegroundColor Green }
+    3010 { Write-Host '完了しました。Windowsが再起動を求めています。' -ForegroundColor Yellow }
+    default { Write-Host "pnputilが失敗しました(コード$LASTEXITCODE)。" -ForegroundColor Red; $failed = $true }
   }
 } catch {
   Write-Host $_.Exception.Message -ForegroundColor Red
@@ -116,5 +116,5 @@ try {
 }
 
 Write-Host ''
-if (-not $failed) { Write-Host 'torne を一度抜いて挿し直し、ブラウザで「接続」を押してください。' }
-Read-Host 'Enter キーで閉じます'
+if (-not $failed) { Write-Host 'torneを一度抜いて挿し直し、ブラウザで「接続」を押してください。' }
+Read-Host 'Enterキーで閉じます'

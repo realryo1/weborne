@@ -53,7 +53,7 @@ class Renderer {
   constructor(canvas) {
     this.canvas = canvas;
     const gl = canvas.getContext('webgl', { alpha: false, antialias: false, depth: false, preserveDrawingBuffer: false });
-    if (!gl) throw new Error('WebGL が使えません');
+    if (!gl) throw new Error('WebGLが使えません');
     this.gl = gl;
     const program = gl.createProgram();
     for (const [type, source] of [[gl.VERTEX_SHADER, VERTEX], [gl.FRAGMENT_SHADER, FRAGMENT]]) {
