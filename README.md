@@ -1,14 +1,43 @@
 # weborne（ウェボルネ）
 
-torne（PS3用地デジチューナー**Sony CECH-ZD1 J**）を、Chromeで**ページを開いてUSBでつなぐだけ**で見られるようにするウェブアプリです。
+地デジチューナー（CECH-ZD1J）を、Chromeでページを開いてUSBでつなぐだけで見られるようにするウェブアプリです。
 アプリのインストールは不要で、WebUSBでチューナーを直接動かします。AndroidとWindowsのChromeで動作を確認しています。
 
 **サイト：[https://realryo1.github.io/weborne/](https://realryo1.github.io/weborne/)**
 
+## 使い方
+
+1. **Chrome**で[https://realryo1.github.io/weborne/](https://realryo1.github.io/weborne/)を開きます（初回だけ自動で1回再読み込みされます）。
+2. Windowsの場合は、最初の1回だけドライバの割り当てが必要です（下の「注意」を参照）。
+3. CECH-ZD1JをUSBでつなぎ、「接続」を押してCECH-ZD1Jを選びます。(AndroidはCECH-ZD1Jを押さないと接続ボタンが押せない)
+4. 勝手にチャンネルスキャンが始まります（UHF 13〜62ch、約2分）。見つかった局から順にボタンになります。途中で中断しても再開可能です。
+5. ボタンを押すと再生します。全画面ボタン（⛶）で横向き全画面になります。
+
+画質は3段階です。端末の性能に合わせて選んでください。多分大体の端末で1080p行けると思う。
+
+| 画質 | 内容 | 重さの目安（PCの1コア） |
+|---|---|---|
+| 標準（軽量・540p） | MPEG-2を半分の解像度でデコード（lowres）。既定 | 約170〜200 fps分の余裕 |
+| 高画質（1080） | 1440×1080をそのままデコード | 約85 fps分の余裕 |
+| ワンセグ | 同じ放送のワンセグ（H.264 320×180） | ごく軽い |
+
+### 対応環境
+
+- チューナー：CECH-ZD1Jのみ。B-CASカードはチューナー本体のカードスロットに挿したものを使います。
+- ブラウザ：WebUSBに対応したChromium系（Android / Windows / macOS / Linux / ChromeOSのChrome、Edge）。**iPhone・iPad、Firefox、Safariは不可**。
+
+### 注意
+
+- **Windowsは自動でドライバを割り当てない**ので、最初の1回だけWinUSBの割り当てが必要です。接続に失敗するとサイトに案内が出、[web/driver/weborne-winusb.bat](web/driver/weborne-winusb.bat)（coaxの`install-winusb.bat`に専用のinfを埋め込んだもの）をダウンロードして実行できます。署名用の証明書を作ってPCに追加し、秘密鍵は署名後に削除します。
+- 同じチューナーを同時に使えるのは1つのアプリだけです。PCではTVTestや`coaxd.exe`を終了してから使ってください。
+- チューナーはUSBから給電されます。スマホ側の給電が足りず不安定なときは、セルフパワーのUSBハブを挟んでください。
+- 「チューナーに前回の状態が残っています」と出たら、チューナーを一度抜いて挿し直してください。
+- 私的な視聴の範囲で使ってください。
+
 ## しくみ
 
 ```
-torne（CECH-ZD1 J）
+CECH-ZD1J
    │ USB（WebUSB）
 usb.js              WebUSBの転送。ストリーム用に常に複数の受信を出しておく
    │
@@ -27,35 +56,6 @@ player.js ──(SharedArrayBufferのリング)──▶ decoder-worker.js（ffm
 - チューナーの制御は[coax](https://github.com/Till0196/coax)のコードを**そのまま**使っています。`go/`はcoaxのソース（2026-11-02時点のmain）から使う部分だけを取り出し、`cmd/weborne-wasm`、`cmd/weborne-file`、`internal/weborne`を足したものです（[go/README.md](go/README.md)）。
 - MPEG-2はブラウザが再生できないので、ffmpeg.wasm（[@ffmpeg/core](https://www.npmjs.com/package/@ffmpeg/core)）でデコードしています。
 
-## 使い方
-
-1. **Chrome**で[https://realryo1.github.io/weborne/](https://realryo1.github.io/weborne/)を開きます（初回だけ自動で1回再読み込みされます）。
-2. Windowsの場合は、最初の1回だけドライバの割り当てが必要です（下の「注意」を参照）。
-3. torneをUSBでつなぎ（スマホは**USB OTGアダプタ**経由）、「接続」を押してCECH-ZD1 Jを選びます。
-4. 初回は「チャンネルスキャン」（UHF 13〜62ch、約2分）。見つかった局から順にボタンになります。途中で「中断」しても、次に接続したときに続きから再開します。
-5. 局のボタンを押すと再生します。全画面ボタン（⛶）で横向き全画面になります。
-
-画質は3段階です。端末の性能に合わせて選んでください。
-
-| 画質 | 内容 | 重さの目安（PCの1コア） |
-|---|---|---|
-| 標準（軽量・540p） | MPEG-2を半分の解像度でデコード（lowres）。既定 | 約170〜200 fps分の余裕 |
-| 高画質（1080） | 1440×1080をそのままデコード | 約85 fps分の余裕 |
-| ワンセグ | 同じ放送のワンセグ（H.264 320×180） | ごく軽い |
-
-### 対応環境
-
-- チューナー：Sony CECH-ZD1 Jのみ。B-CASカードはtorne本体のカードスロットに挿したものを使います。
-- ブラウザ：WebUSBに対応したChromium系（Android / Windows / macOS / Linux / ChromeOSのChrome、Edge）。iPhone・iPad、Firefox、Safariは不可。
-
-### 注意
-
-- **Windows**はtorneに自動でドライバを割り当てないので、最初の1回だけWinUSBの割り当てが必要です。接続に失敗するとサイトに案内が出て、[web/driver/weborne-winusb.bat](web/driver/weborne-winusb.bat)（coaxの`install-winusb.bat`にtorne用のinfを埋め込んだもの）をダウンロードして実行できます。署名用の証明書を作ってPCに追加し、秘密鍵は署名後に削除します。
-- 同じtorneを同時に使えるのは1つのアプリだけです。PCではTVTestや`coaxd.exe`を終了してから使ってください。
-- torneはUSBから給電されます。スマホ側の給電が足りず不安定なときは、セルフパワーのUSBハブを挟んでください。
-- 「torneに前回の状態が残っています」と出たら、torneを一度抜いて挿し直してください。
-- 私的な視聴の範囲で使ってください。
-
 ## 配信のしかた
 
 公開中のサイトをそのまま使えば、配信の準備はいりません。自分で配信する場合は、ビルド（下記）したあとの`web/`を静的サイトとして置くだけです（サーバー側の処理はありません）。WebUSBはHTTPS（またはlocalhost）でしか動きません。
@@ -63,7 +63,7 @@ player.js ──(SharedArrayBufferのリング)──▶ decoder-worker.js（ffm
 - **GitHub Pages**：`main`にpushすると[.github/workflows/deploy.yml](.github/workflows/deploy.yml)がビルドして配信します。forkして使う場合は、最初に一度だけリポジトリのSettings → Pages → Sourceを「GitHub Actions」にしてください。ヘッダー（COOP/COEP）は`web/coi-sw.js`（Service Worker）が付けます。
 - **ローカル**：`node serve.js`で`http://localhost:8080/`に立ちます（必要なヘッダー付き）。PCのChromeならそのまま使えます。
 - **Tailscale**：`node serve.js`を起動したまま`tailscale serve --bg 8080`を実行すると、tailnet内の端末だけに`https://<PC名>.<tailnet>.ts.net/`で公開されます。外出先のスマホからも使えます。止めるときは`tailscale serve --https=443 off`。
-- **adb経由**：`start.bat`がサーバーを起動し、`adb reverse tcp:8080 tcp:8080`でスマホの`localhost:8080`をPCに転送します。スマホのUSB端子はtorneに使うので、adbは**ワイヤレス デバッグ**でつなぎます（Android 11以降）。
+- **adb経由**：`start.bat`がサーバーを起動し、`adb reverse tcp:8080 tcp:8080`でスマホの`localhost:8080`をPCに転送します。スマホのUSB端子はチューナーに使うので、adbは**ワイヤレス デバッグ**でつなぎます（Android 11以降）。
 - **ほかの静的ホスティング**：GitHub Pagesと同じく`web/`を置くだけです。ffmpeg-core.wasmが約32MBあるので、1ファイル25MiBまでのCloudflare Pagesには分割などの対応が必要です。
 
 ## ビルド
@@ -75,27 +75,6 @@ powershell -ExecutionPolicy Bypass -File build.ps1
 
 - Go 1.26以上が必要です（PATHに無ければ`.work/go`に置いたポータブル版を使います）。
 - `go/`を`GOOS=js GOARCH=wasm`でビルドして`web/weborne.wasm`を作り、`wasm_exec.js`とffmpeg.wasm（npmの`@ffmpeg/core`）を`web/`にコピーします。これらの生成物はリポジトリには含めていません。
-
-## フォルダ構成
-
-| パス | 中身 |
-|---|---|
-| [web/](web/) | 配信するサイト一式 |
-| [web/app.js](web/app.js) | 画面と操作（接続、選局、スキャン、状態表示、Windowsのドライバ案内） |
-| [web/usb.js](web/usb.js) | WebUSBの転送（Go側から呼ばれる） |
-| [web/player.js](web/player.js) | デコーダWorkerの管理、WebGL表示、音声、同期 |
-| [web/decoder-worker.js](web/decoder-worker.js) | ffmpeg.wasmを動かすWorker |
-| [web/mkv.js](web/mkv.js) | ffmpegの出力（Matroska）を読む |
-| [web/ring.js](web/ring.js) | ページ → WorkerのTS受け渡し（SharedArrayBuffer） |
-| [web/coi-sw.js](web/coi-sw.js) | COOP/COEPヘッダーを付けるService Worker |
-| [web/driver/](web/driver/) | Windows用のWinUSBインストーラ |
-| [go/cmd/weborne-wasm/](go/cmd/weborne-wasm/) | WASMの入口。`weborne`オブジェクトをJSに公開する |
-| [go/internal/weborne/pipeline/](go/internal/weborne/pipeline/) | PAT/PMT/SDTの解析、ECM→カード、スクランブル解除、サービスの抜き出し |
-| [go/internal/weborne/multi2/](go/internal/weborne/multi2/) | MULTI2暗号 |
-| [go/cmd/weborne-file/](go/cmd/weborne-file/) | 動作確認用：録画したTSをwinscard.dll経由のカードで解除するWindows用ツール |
-| [tools/](tools/) | 検証用スクリプト |
-| [serve.js](serve.js) / [start.bat](start.bat) | ローカル配信用 |
-| `.work/` | 作業用（ポータブルGo、録画サンプルなど）。リポジトリには含めない |
 
 ### 検証用スクリプト（`tools/`）
 
