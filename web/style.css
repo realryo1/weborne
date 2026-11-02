@@ -118,15 +118,11 @@ main {
   padding: 8px 10px;
   background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
   opacity: 0;
+  pointer-events: none;
   transition: opacity 0.2s;
 }
-.stage:hover .stage-controls,
-.stage:focus-within .stage-controls,
-.stage.show-controls .stage-controls { opacity: 1; }
-@media (hover: none) { .stage-controls { opacity: 1; } }
-/* Full screen: the bar shows only for a moment after a tap or a mouse move. */
-.stage:fullscreen .stage-controls { opacity: 0; pointer-events: none; }
-.stage:fullscreen.show-controls .stage-controls { opacity: 1; pointer-events: auto; }
+/* Shown after a tap or a mouse move, hidden again by app.js, as on YouTube. */
+.stage.show-controls .stage-controls { opacity: 1; pointer-events: auto; }
 .stage:fullscreen:not(.show-controls) { cursor: none; }
 
 .stage-controls .spacer { flex: 1; }

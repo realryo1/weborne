@@ -559,17 +559,27 @@ async function main() {
   renderScanButton();
   $('fullscreen').addEventListener('click', toggleFullscreen);
   $('stage').addEventListener('dblclick', toggleFullscreen);
-  // The bar over the picture shows after a tap or a mouse move and hides
-  // again (in full screen, CSS keeps it hidden otherwise).
+  // The bar over the picture works as on YouTube: a tap shows it and the
+  // next tap hides it, a mouse move shows it, and it hides by itself after a
+  // few seconds without use. Using the bar itself keeps it up.
+  const stage = $('stage');
   let controlsTimer = 0;
+  const hideControls = () => { clearTimeout(controlsTimer); stage.classList.remove('show-controls'); };
   const showControls = () => {
-    $('stage').classList.add('show-controls');
+    stage.classList.add('show-controls');
     clearTimeout(controlsTimer);
-    controlsTimer = setTimeout(() => $('stage').classList.remove('show-controls'), 2500);
+    controlsTimer = setTimeout(hideControls, 3000);
   };
-  $('stage').addEventListener('pointermove', showControls);
-  $('stage').addEventListener('pointerdown', showControls);
-  document.addEventListener('fullscreenchange', () => $('stage').classList.remove('show-controls'));
+  stage.addEventListener('pointerdown', (event) => {
+    if (event.target.closest('.stage-controls')) { showControls(); return; }
+    if (event.pointerType === 'mouse') { showControls(); return; }
+    if (stage.classList.contains('show-controls')) hideControls();
+    else showControls();
+  });
+  stage.addEventListener('pointermove', (event) => { if (event.pointerType === 'mouse') showControls(); });
+  stage.addEventListener('mouseleave', hideControls);
+  $('volume').addEventListener('input', showControls);
+  document.addEventListener('fullscreenchange', hideControls);
   $('volume').addEventListener('input', (e) => player.setVolume(Number(e.target.value)));
   $('mute').addEventListener('click', () => {
     player.setMuted(!player.muted);
