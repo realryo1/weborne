@@ -124,6 +124,10 @@ main {
 .stage:focus-within .stage-controls,
 .stage.show-controls .stage-controls { opacity: 1; }
 @media (hover: none) { .stage-controls { opacity: 1; } }
+/* Full screen: the bar shows only for a moment after a tap or a mouse move. */
+.stage:fullscreen .stage-controls { opacity: 0; pointer-events: none; }
+.stage:fullscreen.show-controls .stage-controls { opacity: 1; pointer-events: auto; }
+.stage:fullscreen:not(.show-controls) { cursor: none; }
 
 .stage-controls .spacer { flex: 1; }
 .stage-controls input[type="range"] { width: 90px; accent-color: var(--accent); }

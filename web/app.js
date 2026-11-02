@@ -559,6 +559,17 @@ async function main() {
   renderScanButton();
   $('fullscreen').addEventListener('click', toggleFullscreen);
   $('stage').addEventListener('dblclick', toggleFullscreen);
+  // The bar over the picture shows after a tap or a mouse move and hides
+  // again (in full screen, CSS keeps it hidden otherwise).
+  let controlsTimer = 0;
+  const showControls = () => {
+    $('stage').classList.add('show-controls');
+    clearTimeout(controlsTimer);
+    controlsTimer = setTimeout(() => $('stage').classList.remove('show-controls'), 2500);
+  };
+  $('stage').addEventListener('pointermove', showControls);
+  $('stage').addEventListener('pointerdown', showControls);
+  document.addEventListener('fullscreenchange', () => $('stage').classList.remove('show-controls'));
   $('volume').addEventListener('input', (e) => player.setVolume(Number(e.target.value)));
   $('mute').addEventListener('click', () => {
     player.setMuted(!player.muted);
